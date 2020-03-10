@@ -29,6 +29,12 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks')
+def get_drinks():
+    return jsonify({
+        "success": True,
+        "drinks": []
+    })
 
 
 '''
@@ -39,7 +45,14 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drinks} where drinks is the list of drinks
         or appropriate status code indicating reason for failure
 '''
-
+@app.route('/drinks-detail')
+@requires_auth('get:drinks-detail')
+def get_drinks_detail(jwt):
+    print("DRINK DETAILS JWT:",jwt)
+    return jsonify({
+        "success": True,
+        "drinks": []
+    })
 
 '''
 @TODO implement endpoint
@@ -50,7 +63,14 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
 '''
-
+@app.route('/drinks', methods=['POST'])
+@requires_auth('post:drinks')
+def add_drink(jwt):
+    print("POST DRINKS:",jwt)
+    return jsonify({
+        "success": True,
+        "drinks": []
+    })
 
 '''
 @TODO implement endpoint
@@ -63,6 +83,15 @@ CORS(app)
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks/<id>', methods=['PATCH'])
+@requires_auth('patch:drinks')
+def update_drink(jwt, id):
+    print("POST DRINKS:",jwt)
+    print(id)
+    return jsonify({
+        "success": True,
+        "drinks": []
+    })
 
 
 '''
@@ -75,6 +104,15 @@ CORS(app)
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
+@app.route('/drinks/<id>', methods=['DELETE'])
+@requires_auth('delete:drinks')
+def delete_drink(jwt, id):
+    print("POST DRINKS:",jwt)
+    print(id)
+    return jsonify({
+        "success": True,
+        "drinks": []
+    })
 
 
 ## Error Handling
@@ -100,13 +138,28 @@ def unprocessable(error):
 
 '''
 
+
 '''
 @TODO implement error handler for 404
     error handler should conform to general task above 
 '''
-
+@app.errorhandler(404)
+def page_not_found(error):
+    return jsonify({
+                    "success": False, 
+                    "error": 404,
+                    "message": "resource not found"
+                    }), 404
 
 '''
 @TODO implement error handler for AuthError
     error handler should conform to general task above 
 '''
+@app.errorhandler(AuthError)
+def missing_permissions(error):
+    print(error.error, error.status_code)
+    return jsonify({
+                    "success": False, 
+                    "error": error.status_code,
+                    "message": error.error['description']
+                    }), error.status_code
